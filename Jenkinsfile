@@ -21,9 +21,9 @@ pipeline {
             steps {
                 echo 'Analyzing and testing the code...'
                 script {
-                    sh "docker build -t test-image -f Dockerfile.test ."
-                    sh "docker run test-image flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics"
-                    sh "docker run test-image pytest"
+                    bat "docker build -t test-image -f Dockerfile.test ."
+                    bat "docker run test-image flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics"
+                    bat "docker run test-image pytest"
                 }
             }
         }
