@@ -12,7 +12,8 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                echo 'Clon repository...'                
+                echo 'Clon repository...'
+                deleteDir()
                 checkout scm
             }
         }
