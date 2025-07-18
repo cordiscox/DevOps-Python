@@ -36,9 +36,10 @@ pipeline {
 
                     echo "Image ${dockerImage.id} built."
                     echo "Publishing image to AWS ECR: ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}"
-                    docker.withRegistry( 'https://' + ECR_REGISTRY_URI, 'ECR_AWS' ) {
-                        dockerImage.push()
-                    }
+                    sh '''
+                        aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 291041007750.dkr.ecr.us-east-2.amazonaws.com
+                    '''
+                    
                 }
             }
         }
