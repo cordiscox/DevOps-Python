@@ -36,7 +36,7 @@ pipeline {
 
                     echo "Image ${dockerImage.id} built."
                     echo "Publishing image to AWS ECR: ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}"
-                    docker.withRegistry( 'https://' + ECR_REGISTRY_URI, 'AWS_CREDS' ) {
+                    docker.withRegistry( 'https://' + ECR_REGISTRY_URI, 'ECR_AWS' ) {
                         dockerImage.push()
                     }
                 }
