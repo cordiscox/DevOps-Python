@@ -37,6 +37,7 @@ pipeline {
                     echo "Image ${dockerImage.id} built."
                     echo "Publishing image to AWS ECR: ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}"
                     bat "aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin ${ECR_REGISTRY_URI}"
+                    bat "docker tag mi-flask-app:${IMAGE_TAG} ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}"
                     bat "docker push ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}"
                 }
             }
