@@ -68,13 +68,15 @@ pipeline {
                 echo 'Deploying to EC2 on Windows agent...'
                 withCredentials([file(credentialsId: 'EC2_SSH_PEM', variable: 'PEM_FILE')]) {
                     bat """
-                        aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY_URI} && ^
-                        docker pull ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG} && ^
-                        docker stop mi-flask-app || exit 0 && ^
-                        docker rm mi-flask-app || exit 0 && ^
-                        docker run -d --name mi-flask-app -p 80:5000 ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}"
+                        ssh -i %PEM_FILE% -o StrictHostKeyChecking=no ubuntu@${EC2_HOSTNAME} " ^
+                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY_URI} && ^
+                            docker pull ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG} && ^
+                            docker stop mi-flask-app || exit 0 && ^
+                            docker rm mi-flask-app || exit 0 && ^
+                            docker run -d --name mi-flask-app -p 80:5000 ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}
+                        "
                     """
-
+                }
             }
         }
     }
