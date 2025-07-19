@@ -28,7 +28,7 @@ pipeline {
             }
         }
 
-        stage('Build & Push Docker Image') {
+        /*stage('Build & Push Docker Image') {
             steps {
                 echo 'Building the production Docker image...'
                 script {
@@ -59,6 +59,21 @@ pipeline {
                             docker run -d --name mi-flask-app -p 80:5000 ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}
                         ENDSSH
                     '''
+                }
+            }
+        }*/
+        stage('Deploy to EC2') {
+            steps {
+                echo 'Deploying to EC2 on Windows agent...'
+                withCredentials([file(credentialsId: 'EC2_SSH_PEM', variable: 'PEM_FILE')]) {
+                    bat """
+                        echo y | plink.exe -i %PEM_FILE% -ssh ubuntu@18.118.173.125 ^
+                        "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY_URI} & ^
+                        docker pull ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG} & ^
+                        docker stop mi-flask-app || exit 0 & ^
+                        docker rm mi-flask-app || exit 0 & ^
+                        docker run -d --name mi-flask-app -p 80:5000 ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}"
+                    """
                 }
             }
         }
