@@ -3,7 +3,7 @@ pipeline {
     agent any
 
     environment {
-        ECR_REGISTRY_URI = "291041007750.dkr.ecr.us-east-2.amazonaws.com/mi-flask-app/mi-flask-app"
+        ECR_REGISTRY_URI = "291041007750.dkr.ecr.us-east-2.amazonaws.com"
         ECR_REPOSITORY_NAME = "mi-flask-app"
         AWS_REGION = "us-east-2"
         IMAGE_TAG = "${BUILD_NUMBER}"
