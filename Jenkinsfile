@@ -69,7 +69,7 @@ pipeline {
                 withCredentials([file(credentialsId: 'EC2_SSH_PEM', variable: 'PEM_FILE')]) { // Credentials are stored in Jenkins and we need to chmod 400 the file
                     bat """
                         icacls "%PEM_FILE%" /inheritance:r
-                        icacls "%PEM_FILE%" /grant:r "%USERNAME%:R"
+                        icacls "%PEM_FILE%" /grant:r "NT AUTHORITY\\SYSTEM:R"
                         ssh -i %PEM_FILE% -o StrictHostKeyChecking=no ubuntu@${EC2_HOSTNAME} " ^
                             aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY_URI} && ^
                             docker pull ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG} && ^
