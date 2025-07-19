@@ -3,7 +3,7 @@ pipeline {
     agent any
 
     environment {
-        ECR_REGISTRY_URI = "291041007750.dkr.ecr.us-east-2.amazonaws.com/mi-flask-app"
+        ECR_REGISTRY_URI = "291041007750.dkr.ecr.us-east-2.amazonaws.com/mi-flask-app/mi-flask-app"
         ECR_REPOSITORY_NAME = "mi-flask-app"
         AWS_REGION = "us-east-2"
         IMAGE_TAG = "${BUILD_NUMBER}"
@@ -36,9 +36,8 @@ pipeline {
 
                     echo "Image ${dockerImage.id} built."
                     echo "Publishing image to AWS ECR: ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}"
-                    bat "aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin 291041007750.dkr.ecr.us-east-2.amazonaws.com"
-                    bat "docker push 291041007750.dkr.ecr.us-east-2.amazonaws.com/mi-flask-app:${IMAGE_TAG}"
-                    
+                    bat "aws ecr get-login-password --region us-east-2 | docker login --username AWS --password-stdin ${ECR_REGISTRY_URI}"
+                    bat "docker push ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}"
                 }
             }
         }
