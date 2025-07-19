@@ -48,7 +48,7 @@ pipeline {
                 echo 'Deploying to EC2...'
                 sshagent(credentials: ['EC2_SSH_KEY']) {
                     sh '''
-                        ssh -o StrictHostKeyChecking=no ubuntu@3.138.186.60 <<'ENDSSH'
+                        ssh -o StrictHostKeyChecking=no ubuntu@18.118.173.125 <<'ENDSSH'
                             aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY_URI}
 
                             docker pull ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}
