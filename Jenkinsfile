@@ -67,7 +67,6 @@ pipeline {
             steps {
                 echo 'Deploying to EC2 on Windows agent...'
                 withCredentials([file(credentialsId: 'EC2_SSH_PEM', variable: 'PEM_FILE')]) { // Credentials are stored in Jenkins and we need to chmod 400 the file
-                    bat "icacls %PEM_FILE% /grant:r \"%USERNAME%\":R"
                     bat """
                         ssh -i %PEM_FILE% -o StrictHostKeyChecking=no ubuntu@${EC2_HOSTNAME} " ^
                             aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY_URI} && ^
