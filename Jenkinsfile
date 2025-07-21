@@ -33,17 +33,17 @@ pipeline {
             steps {
                 echo 'Building the production Docker image...'
                 script {
+                    withCredentials([aws(credentialsId: 'AWS_CREDS')]) {
+                    
                     def dockerImage = docker.build("${ECR_REPOSITORY_NAME}:${IMAGE_TAG}")
-
                     echo "Image ${dockerImage.id} built."
-                    echo "Publishing image to AWS ECR: ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}"
+                    
                     sh '''
                     aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY_URI}
                     docker tag mi-flask-app:${IMAGE_TAG} ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}
                     docker push ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}
                     '''
                     echo "Image pushed to ECR successfully."
-        
                 }
             }
         }
