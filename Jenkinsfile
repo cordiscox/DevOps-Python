@@ -52,17 +52,18 @@ pipeline {
                 sshagent(credentials: ['EC2_SSH_KEY']) {
                     sh """
                         ssh -o StrictHostKeyChecking=no ubuntu@${EC2_HOSTNAME} <<ENDSSH
-                            echo '1. Logging into AWS ECR on the EC2 instance...'
                             aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY_URI}
 
-                            echo '2. Pulling the new Docker image...'
                             docker pull ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}
 
-                            echo '3. Stopping and removing the old container...'
-                            docker stop mi-flask-app || true
-                            docker rm mi-flask-app || true
-
-                            echo '4. Starting the new container...'
+                            CONTAINER_ID=\$(docker ps -a -q -f name=mi-flask-app)
+                            if [ -n "\$CONTAINER_ID" ]; then
+                                echo "Stopping and removing existing container: \$CONTAINER_ID"
+                                docker stop \$CONTAINER_ID
+                                docker rm \$CONTAINER_ID
+                            fi
+                            
+                            echo "Starting new container..."
                             docker run -d --name mi-flask-app -p 80:5000 ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}
                         ENDSSH
                     """
@@ -71,3 +72,4 @@ pipeline {
         }
     }
 }
+
