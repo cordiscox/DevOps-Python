@@ -56,13 +56,10 @@ pipeline {
 
                             docker pull ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}
 
-                            CONTAINER_ID=\$(docker ps -a -q -f name=mi-flask-app)
-                            if [ -n "\$CONTAINER_ID" ]; then
-                                echo "Stopping and removing existing container: \$CONTAINER_ID"
-                                docker stop \$CONTAINER_ID
-                                docker rm \$CONTAINER_ID
-                            fi
-                            
+                            echo 'Stopping and removing the old container...'
+                            docker stop mi-flask-app || true
+                            docker rm mi-flask-app || true
+
                             echo "Starting new container..."
                             docker run -d --name mi-flask-app -p 80:5000 ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}
                         ENDSSH
