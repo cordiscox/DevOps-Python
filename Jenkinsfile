@@ -51,17 +51,16 @@ pipeline {
                 echo "Deploying to ${EC2_HOSTNAME}..."
                 sshagent(credentials: ['EC2_SSH_KEY']) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no ubuntu@${EC2_HOSTNAME} <<ENDSSH
-                            aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY_URI}
+                        ssh -o StrictHostKeyChecking=no ubuntu@${EC2_HOSTNAME} << ENDSSH
+                        aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY_URI}
+                        docker pull ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}
 
-                            docker pull ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}
+                        echo 'Stopping and removing the old container...'
+                        docker stop mi-flask-app || true
+                        docker rm mi-flask-app || true
 
-                            echo 'Stopping and removing the old container...'
-                            docker stop mi-flask-app || true
-                            docker rm mi-flask-app || true
-
-                            echo "Starting new container..."
-                            docker run -d --name mi-flask-app -p 80:5000 ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}
+                        echo 'Starting new container...'
+                        docker run -d --name mi-flask-app -p 80:5000 ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}
                         ENDSSH
                     """
                 }
