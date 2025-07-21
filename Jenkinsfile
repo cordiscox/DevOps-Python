@@ -34,12 +34,13 @@ pipeline {
                 echo 'Building the production Docker image...'
                 script {
                     withCredentials([aws(credentialsId: 'AWS_CREDS')]) {
-                    
-                    def dockerImage = docker.build("${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}")
-                    echo "Image ${dockerImage.id} built."
-                    dockerImage.push()                    
+                        sh "aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY_URI}"
+                
+                        def dockerImage = docker.build("${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}")
+                        echo "Image ${dockerImage.id} built."
+                        dockerImage.push()                    
 
-                    echo "Image pushed to ECR successfully."
+                        echo "Image pushed to ECR successfully."
                     }
                 }
             }
