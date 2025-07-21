@@ -35,7 +35,7 @@ pipeline {
                 script {
                     withCredentials([aws(credentialsId: 'AWS_CREDS')]) {
                     
-                    def dockerImage = docker.build("${ECR_REPOSITORY_NAME}:${IMAGE_TAG}")
+                    def dockerImage = docker.build("${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}")
                     echo "Image ${dockerImage.id} built."
                     dockerImage.push()                    
 
