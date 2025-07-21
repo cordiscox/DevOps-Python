@@ -44,6 +44,7 @@ pipeline {
                     docker push ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}
                     '''
                     echo "Image pushed to ECR successfully."
+                    }
                 }
             }
         }
