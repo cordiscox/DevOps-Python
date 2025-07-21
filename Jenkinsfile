@@ -48,20 +48,24 @@ pipeline {
 
         stage('Deploy to EC2') {
             steps {
-                echo 'Deploying to EC2...'
+                echo "Deploying to ${EC2_HOSTNAME}..."
                 sshagent(credentials: ['EC2_SSH_KEY']) {
-                    sh '''
-                        ssh -o StrictHostKeyChecking=no ubuntu@18.118.173.125 <<'ENDSSH'
+                    sh """
+                        ssh -o StrictHostKeyChecking=no ubuntu@${EC2_HOSTNAME} <<ENDSSH
+                            echo '1. Logging into AWS ECR on the EC2 instance...'
                             aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ECR_REGISTRY_URI}
 
+                            echo '2. Pulling the new Docker image...'
                             docker pull ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}
 
+                            echo '3. Stopping and removing the old container...'
                             docker stop mi-flask-app || true
                             docker rm mi-flask-app || true
 
+                            echo '4. Starting the new container...'
                             docker run -d --name mi-flask-app -p 80:5000 ${ECR_REGISTRY_URI}/${ECR_REPOSITORY_NAME}:${IMAGE_TAG}
                         ENDSSH
-                    '''
+                    """
                 }
             }
         }
